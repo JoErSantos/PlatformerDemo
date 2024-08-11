@@ -12,9 +12,7 @@ public class PlayerMovement : MonoBehaviour
     private Collider2D playerCollider;
 
     [SerializeField]
-    private LayerMask enemyMask;
-    [SerializeField]
-    private LayerMask interactableMask;
+    private LayerMask ignoreMask;
     [SerializeField]
     private Transform interactBox;
 
@@ -87,8 +85,7 @@ public class PlayerMovement : MonoBehaviour
                 multiplier = -1f;
             Vector3 rollForceVect = new Vector3 (rollForce,0,0);
             playerRigidBody.AddForce(speed * rollForceVect * multiplier, ForceMode2D.Impulse);
-            playerCollider.excludeLayers += enemyMask;
-            playerCollider.excludeLayers += interactableMask;
+            playerCollider.excludeLayers += ignoreMask;
             animator.SetBool("IsRolling",true);
             isRollAvailable = false;
             StartCoroutine(WaitForRoll());
@@ -100,8 +97,7 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(0.25f);
         Debug.Log("DONE");
         animator.SetBool("IsRolling",false);
-        playerCollider.excludeLayers -= enemyMask;
-        playerCollider.excludeLayers += interactableMask;
+        playerCollider.excludeLayers -= ignoreMask;
         yield return new WaitForSeconds(2.75f);
         isRollAvailable = true;
     }

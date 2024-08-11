@@ -20,7 +20,6 @@ public class PlayerInteractor : MonoBehaviour
     {
         if(Interactable == collider.gameObject)
         {
-            Debug.Log("huh?");
             Interactable.GetComponent<Collider2D>().isTrigger = false;
             Interactable.GetComponent<Rigidbody2D>().gravityScale = 9.2f;
             Interactable = null;
@@ -29,8 +28,6 @@ public class PlayerInteractor : MonoBehaviour
 
     void FixedUpdate()
     {
-        Debug.Log(Interactable);
-        Debug.Log(IsObjectGrabbed);
         grabInteractable();
     }
 
