@@ -12,16 +12,21 @@ public class PlayerStats : MonoBehaviour
 
     public void loseHP()
     {
-        if (HP > 1)
+        if (HP > 0)
         {
             HP -= 1;
         }
-        else
+    }
+
+    public void loseLife()
+    {
+        if(Lives > 0)
         {
-            HP = 3;
             Lives -= 1;
+            HP = 3;
         }
     }
+
     public void gainHP()
     {
         if(HP <=2)

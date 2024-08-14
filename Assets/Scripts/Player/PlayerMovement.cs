@@ -10,11 +10,17 @@ public class PlayerMovement : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Animator animator;
     private Collider2D playerCollider;
+    private FlashSistem flashManager;
 
     [SerializeField]
     private LayerMask ignoreMask;
     [SerializeField]
     private Transform interactBox;
+    [SerializeField]
+    private ParticleSystem runningParticles;
+    [SerializeField]
+    private ParticleSystem rollParticles;
+
 
     [SerializeField]
     private float speed = 5f;
@@ -34,6 +40,7 @@ public class PlayerMovement : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         playerCollider = GetComponent<Collider2D>();
+        flashManager = GetComponent<FlashSistem>();
     }
 
     // Update is called once per frame
@@ -55,16 +62,22 @@ public class PlayerMovement : MonoBehaviour
             spriteRenderer.flipX = true;
             lookingToRigth = false;
             interactBox.localPosition = new Vector3(-0.4f,-0.1f,0f);
+            runningParticles.transform.rotation = Quaternion.Euler(0f,0f,270f);
         }
         else if(direction.x == 1f)
         {
             spriteRenderer.flipX = false;
             lookingToRigth = true;
             interactBox.localPosition = new Vector3(0.4f,-0.1f,0f);
+            runningParticles.transform.rotation = Quaternion.Euler(0f,0f,90f);
         }
         Vector2 dirVect = new Vector2(direction.x,0);
         transform.position = Vector3.MoveTowards(transform.position, transform.position + (Vector3)dirVect, speed * Time.deltaTime);
         xVelocity = dirVect.x * speed;
+        if(xVelocity != 0f && !runningParticles.isPlaying && isOnGround)
+            runningParticles.Play();
+        else if((xVelocity == 0f && runningParticles.isPlaying) || !isOnGround)
+            runningParticles.Stop();
     }
 
     public void Jump()
@@ -88,17 +101,18 @@ public class PlayerMovement : MonoBehaviour
             playerCollider.excludeLayers += ignoreMask;
             animator.SetBool("IsRolling",true);
             isRollAvailable = false;
+            rollParticles.Play();
+            flashManager.Flash(2,0.5f);
             StartCoroutine(WaitForRoll());
         }
     }
 
     IEnumerator WaitForRoll()
     {
-        yield return new WaitForSeconds(0.25f);
-        Debug.Log("DONE");
+        yield return new WaitForSeconds(0.5f);
         animator.SetBool("IsRolling",false);
         playerCollider.excludeLayers -= ignoreMask;
-        yield return new WaitForSeconds(2.75f);
+        yield return new WaitForSeconds(2.5f);
         isRollAvailable = true;
     }
 }

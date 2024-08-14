@@ -6,11 +6,15 @@ public class PlayerDmgHandler : MonoBehaviour
 {
     private PlayerStats playerStats;
     private Collider2D playerCollider;
-    private SimpleFlash simpleFlash;
+    private FlashSistem flashManager;
+    private SpriteRenderer spriteRenderer;
     private Animator animator;
 
     [SerializeField]
     private LayerMask ignoreMask;
+    [SerializeField]
+    private Transform respawnPos;
+
 
     void OnCollisionEnter2D(Collision2D collision)
     {
@@ -21,12 +25,15 @@ public class PlayerDmgHandler : MonoBehaviour
                 ,ForceMode2D.Impulse);
             playerCollider.excludeLayers += ignoreMask;
             animator.SetBool("IsHurt",true);
-            simpleFlash.Flash();
-            StartCoroutine(Invencibility());
-        }
-        else if(collision.collider.gameObject.layer == 8)
-        {
-            Debug.Log("yummi");
+            if(playerStats.getHP() == 0)
+            {
+                DeathHanddler();
+            }
+            else
+            {
+                flashManager.Flash(2f,4);
+                StartCoroutine(Invencibility());
+            }
         }
     }
 
@@ -34,10 +41,17 @@ public class PlayerDmgHandler : MonoBehaviour
     {
         playerStats = GetComponent<PlayerStats>();
         playerCollider = GetComponent<Collider2D>();
-        simpleFlash = GetComponent<SimpleFlash>();
+        flashManager = GetComponent<FlashSistem>();
         animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
+    private void DeathHanddler()
+    {
+        animator.SetBool("IsPlayerDead",true);
+        StartCoroutine(RespawnPlayer());
+    }
+    
     IEnumerator Invencibility()
     {
         yield return new WaitForSeconds(0.25f);
@@ -45,5 +59,21 @@ public class PlayerDmgHandler : MonoBehaviour
         yield return new WaitForSeconds(2.25f);
         playerCollider.excludeLayers -= ignoreMask;
     }
+
+    IEnumerator RespawnPlayer()
+    {
+        yield return new WaitForSeconds(0.5f);
+        spriteRenderer.enabled = false;
+        transform.position = respawnPos.position;
+        yield return new WaitForSeconds(1f);
+        spriteRenderer.enabled = true;
+        spriteRenderer.flipX = false;
+        animator.SetBool("IsPlayerDead",false);
+        animator.SetBool("IsHurt",false);
+        playerStats.loseLife();
+        playerCollider.excludeLayers -= ignoreMask;
+    }
+
+    //IsPlayerDead
 
 }

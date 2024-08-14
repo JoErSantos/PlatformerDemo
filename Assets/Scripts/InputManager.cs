@@ -7,6 +7,8 @@ public class InputManager : MonoBehaviour
     private PlayerControls playerControls;
     private PlayerControls.MovementActions movement;
     private PlayerMovement playerMovement;
+    private PlayerStats playerStats;
+
     [SerializeField]
     private PlayerInteractor playerInteractor;
     void Awake()
@@ -14,6 +16,7 @@ public class InputManager : MonoBehaviour
         playerControls = new PlayerControls();
         movement =  playerControls.Movement;
         playerMovement = GetComponent<PlayerMovement>();
+        playerStats = GetComponent<PlayerStats>();
         movement.Jump.performed += ctx => playerMovement.Jump();
         movement.Roll.performed += ctx => playerMovement.Roll();
         movement.Grab.performed += ctx => playerInteractor.setsetIsObjectGrabbed();
@@ -23,6 +26,10 @@ public class InputManager : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
+        if(playerStats.getHP() == 0)
+            movement.Disable();
+        else
+            movement.Enable();
         playerMovement.Movement(movement.SideMovement.ReadValue<Vector2>());
     }
 
@@ -35,4 +42,5 @@ public class InputManager : MonoBehaviour
     {
         movement.Disable();
     }
+
 }
